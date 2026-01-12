@@ -11,7 +11,7 @@ public class Round {
 
     @JsonIgnore
     @Id
-    private long id;
+    private Long id;
 
     private int scoreA;
 
@@ -22,14 +22,14 @@ public class Round {
     public Round() {
     }
 
-    public Round(long id, int scoreA, int scoreB, int roundNumber) {
+    public Round(Long id, int scoreA, int scoreB, int roundNumber) {
         this.id = id;
         this.scoreA = scoreA;
         this.scoreB = scoreB;
         this.roundNumber = roundNumber;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -45,7 +45,7 @@ public class Round {
         return roundNumber;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

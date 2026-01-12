@@ -32,4 +32,7 @@ public class MatchController {
     public List<Match> getAll() {
         return matchService.getAll();
     }
+
+    @PostMapping
+    public Match addMatch(@RequestBody Match match) { return matchService.addMatch(match); }
 }
