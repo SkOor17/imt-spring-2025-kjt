@@ -25,7 +25,7 @@ public class Match {
     @JoinColumn(name = "equipeb_id")
     private Equipe equipeB;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "match_round",
             joinColumns = @JoinColumn(name = "match_id"),

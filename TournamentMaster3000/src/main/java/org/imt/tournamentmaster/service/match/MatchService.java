@@ -1,5 +1,6 @@
 package org.imt.tournamentmaster.service.match;
 
+import org.imt.tournamentmaster.dto.MatchCreationDTO;
 import org.imt.tournamentmaster.model.equipe.Equipe;
 import org.imt.tournamentmaster.model.match.Match;
 import org.imt.tournamentmaster.repository.equipe.EquipeRepository;
@@ -37,16 +38,19 @@ public class MatchService {
     }
 
     @Transactional
-    public Match addMatch(Match match) {
+    public Match addMatch(MatchCreationDTO matchDto) {
+        Match match = new Match();
+        match.setStatus(matchDto.status());
+        match.setRounds(matchDto.rounds());
 
-        if (match.getEquipeA() != null) {
-            Equipe equipeA = equipeRepository.findById(match.getEquipeA().getId())
+        if (matchDto.equipeAId() != null) {
+            Equipe equipeA = equipeRepository.findById(matchDto.equipeAId())
                     .orElseThrow(() -> new RuntimeException("Equipe A non trouvée"));
             match.setEquipeA(equipeA);
         }
 
-        if (match.getEquipeB() != null) {
-            Equipe equipeB = equipeRepository.findById(match.getEquipeB().getId())
+        if (matchDto.equipeBId() != null) {
+            Equipe equipeB = equipeRepository.findById(matchDto.equipeBId())
                     .orElseThrow(() -> new RuntimeException("Equipe B non trouvée"));
             match.setEquipeB(equipeB);
         }
