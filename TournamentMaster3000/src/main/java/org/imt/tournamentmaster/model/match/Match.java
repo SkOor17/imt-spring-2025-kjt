@@ -14,15 +14,18 @@ public class Match {
 
     @JsonIgnore
     @Id
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "equipea_id")
     private Equipe equipeA;
 
     @ManyToOne
+    @JoinColumn(name = "equipeb_id")
     private Equipe equipeB;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "match_round",
             joinColumns = @JoinColumn(name = "match_id"),
@@ -30,12 +33,14 @@ public class Match {
     )
     private List<Round> rounds; // Set est un type de collection, on va éviter les confusions et appeler ça un "round"
 
+    @Enumerated(EnumType.ORDINAL)  // Ajouté car status est un SMALLINT dans la DB
+    @Column(name = "status")
     private Status status;
 
     public Match() {
     }
 
-    public Match(long id, Equipe equipeA, Equipe equipeB, List<Round> rounds, Status status) {
+    public Match(Long id, Equipe equipeA, Equipe equipeB, List<Round> rounds, Status status) {  // long -> Long
         this.id = id;
         this.equipeA = equipeA;
         this.equipeB = equipeB;
@@ -43,7 +48,7 @@ public class Match {
         this.status = status;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -63,7 +68,7 @@ public class Match {
         return status;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -118,7 +123,7 @@ public class Match {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Match match = (Match) o;
-        return id == match.id && Objects.equals(equipeA, match.equipeA) && Objects.equals(equipeB, match.equipeB) && Objects.equals(rounds, match.rounds) && status == match.status;
+        return Objects.equals(id, match.id) && Objects.equals(equipeA, match.equipeA) && Objects.equals(equipeB, match.equipeB) && Objects.equals(rounds, match.rounds) && status == match.status;
     }
 
     @Override

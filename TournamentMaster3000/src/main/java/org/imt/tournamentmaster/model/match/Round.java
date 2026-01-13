@@ -2,6 +2,8 @@ package org.imt.tournamentmaster.model.match;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.util.Objects;
@@ -11,7 +13,8 @@ public class Round {
 
     @JsonIgnore
     @Id
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private int scoreA;
 
@@ -22,14 +25,14 @@ public class Round {
     public Round() {
     }
 
-    public Round(long id, int scoreA, int scoreB, int roundNumber) {
+    public Round(Long id, int scoreA, int scoreB, int roundNumber) {
         this.id = id;
         this.scoreA = scoreA;
         this.scoreB = scoreB;
         this.roundNumber = roundNumber;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -45,7 +48,7 @@ public class Round {
         return roundNumber;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

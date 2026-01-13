@@ -1,5 +1,6 @@
 package org.imt.tournamentmaster.controller.match;
 
+import org.imt.tournamentmaster.dto.MatchCreationDTO;
 import org.imt.tournamentmaster.model.match.Match;
 import org.imt.tournamentmaster.service.match.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,4 +33,7 @@ public class MatchController {
     public List<Match> getAll() {
         return matchService.getAll();
     }
+
+    @PostMapping
+    public Match addMatch(@RequestBody MatchCreationDTO matchDto) { return matchService.addMatch(matchDto); }
 }

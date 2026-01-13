@@ -1,6 +1,5 @@
 package org.imt.tournamentmaster.model.equipe;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -9,9 +8,9 @@ import java.util.Objects;
 @Entity
 public class Equipe {
 
-    @JsonIgnore
     @Id
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String nom;
 
@@ -26,13 +25,13 @@ public class Equipe {
     public Equipe() {
     }
 
-    public Equipe(long id, String nom, List<Joueur> joueurs) {
+    public Equipe(Long id, String nom, List<Joueur> joueurs) {
         this.id = id;
         this.nom = nom;
         this.joueurs = joueurs;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -44,7 +43,7 @@ public class Equipe {
         return joueurs;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

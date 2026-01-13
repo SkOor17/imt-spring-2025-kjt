@@ -1,10 +1,13 @@
 package org.imt.tournamentmaster.configuration.security;
 
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -12,6 +15,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+@SecurityScheme(
+        type = SecuritySchemeType.HTTP,
+        name = "basicAuth",
+        scheme= "basic"
+)
 @Configuration
 public class SecurityConfiguration {
 
@@ -24,7 +32,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/actuator/health/**").permitAll()
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
                 .anyRequest().permitAll())
-        .httpBasic(Customizer.withDefaults());
+        .httpBasic(Customizer.withDefaults())
+        .csrf(AbstractHttpConfigurer::disable);
 
         return http.build();
     }

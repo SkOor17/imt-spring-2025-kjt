@@ -11,7 +11,7 @@ public class Joueur {
 
     @JsonIgnore
     @Id
-    private long id;
+    private Long id;
 
     private String nom;
 
@@ -22,7 +22,7 @@ public class Joueur {
     public Joueur() {
     }
 
-    public Joueur(long id, String nom, String prenom, int numero) {
+    public Joueur(Long id, String nom, String prenom, int numero) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
@@ -41,7 +41,7 @@ public class Joueur {
         return numero;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
