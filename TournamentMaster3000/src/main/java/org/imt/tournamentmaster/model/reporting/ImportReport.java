@@ -1,26 +1,28 @@
 package org.imt.tournamentmaster.model.reporting;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 public class ImportReport {
 
+    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime date;
+    private LocalDateTime importDate;
 
     private int successCount;
 
     private int failureCount;
 
-    // Pour simplifier, on stocke juste le nom de l'équipe gagnante la plus fréquente de ce lot, ou autre stat
-    private String topWinner; 
+    @Column(length = 5000)
+    private String errors;
 
     public ImportReport() {
-        this.date = LocalDateTime.now();
+        this.importDate = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -31,12 +33,12 @@ public class ImportReport {
         this.id = id;
     }
 
-    public LocalDateTime getDate() {
-        return date;
+    public LocalDateTime getImportDate() {
+        return importDate;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
+    public void setImportDate(LocalDateTime importDate) {
+        this.importDate = importDate;
     }
 
     public int getSuccessCount() {
@@ -55,11 +57,11 @@ public class ImportReport {
         this.failureCount = failureCount;
     }
 
-    public String getTopWinner() {
-        return topWinner;
+    public String getErrors() {
+        return errors;
     }
 
-    public void setTopWinner(String topWinner) {
-        this.topWinner = topWinner;
+    public void setErrors(String errors) {
+        this.errors = errors;
     }
 }

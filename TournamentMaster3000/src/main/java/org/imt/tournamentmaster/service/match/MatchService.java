@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -63,48 +65,85 @@ public class MatchService {
 
     @Transactional
     public ImportReport bulkAddMatches(List<MatchCreationDTO> dtos) {
-        ImportReport report = new ImportReport();
-        int success = 0;
-        int failure = 0;
+        // 1. Pré-chargement des équipes
+        Set<Long> equipeIds = dtos.stream()
+                .flatMap(dto -> Stream.of(dto.equipeAId(), dto.equipeBId()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
 
-        for (MatchCreationDTO dto : dtos) {
+        List<Equipe> equipes = (List<Equipe>) equipeRepository.findAllById(equipeIds);
+        Map<Long, Equipe> equipesMap = equipes.stream()
+                .collect(Collectors.toMap(Equipe::getId, e -> e));
+
+        // 2. Traitement avec vérification doublon individuelle
+        List<Match> matchsToSave = new ArrayList<>();
+        List<ImportError> errors = new ArrayList<>();
+
+        for (int i = 0; i < dtos.size(); i++) {
+            MatchCreationDTO dto = dtos.get(i);
             try {
-                // Validation pré-ajout : Doublons
-                // On charge temporairement les équipes pour vérifier (optimisation possible: charger tout en batch avant, mais ok pour l'instant)
-                // Note: Ici on fait une vérification "manuelle" avant d'appeler addMatch pour éviter d'avoir à gérer l'exception de addMatch si on veut être précis
-                // Mais pour simplifier et réutiliser addMatch, on peut faire le check dedans ou ici. 
-                // Pour respecter "ne pas enregistrer de doublon", on checke avant.
-                
-                if (dto.equipeAId() != null && dto.equipeBId() != null) {
-                     Equipe a = equipeRepository.findById(dto.equipeAId()).orElse(null);
-                     Equipe b = equipeRepository.findById(dto.equipeBId()).orElse(null);
-                     
-                     if (a != null && b != null) {
-                         boolean exists = matchRepository.existsByEquipeAAndEquipeBAndStatusNot(a, b, Match.Status.TERMINE);
-                         if (exists) {
-                             failure++;
-                             continue; // Skip ce match
-                         }
-                     }
+                Equipe equipeA = equipesMap.get(dto.equipeAId());
+                Equipe equipeB = equipesMap.get(dto.equipeBId());
+
+                // Validation équipes existent
+                if (equipeA == null || equipeB == null) {
+                    errors.add(new ImportError(i + 1, dto, "Équipe(s) introuvable(s)"));
+                    continue;
                 }
 
-                addMatch(dto);
-                success++;
+                // Vérification doublon
+                boolean exists = matchRepository.existsByEquipeAAndEquipeB(equipeA, equipeB);
+
+                if (exists) {
+                    errors.add(new ImportError(i + 1, dto, "Match déjà existant"));
+                    continue;
+                }
+
+                // Création du match
+                Match match = createMatch(dto, equipesMap);
+                matchsToSave.add(match);
+
             } catch (Exception e) {
-                // Si un match échoue, on continue les autres (Requirement: "Si un match ne peut pas être enregistré alors les autres doivents l'être quand même")
-                failure++;
+                errors.add(new ImportError(i + 1, dto, e.getMessage()));
             }
         }
 
-        report.setSuccessCount(success);
-        report.setFailureCount(failure);
-        
-        // Logique simpliste pour top winner (à améliorer si besoin de vraies stats sur le contenu importé)
-        report.setTopWinner("Voir détails"); 
+        // 3. Sauvegarde
+        if (!matchsToSave.isEmpty()) {
+            matchRepository.saveAll(matchsToSave);
+        }
 
-        // Sauvegarde du rapport. 
-        // Requirement: "Si la création du rapport est ko alors les matchs ne doivent pas être enregistré"
-        // Comme cette méthode est @Transactional, si save(report) lance une exception, TOUT (y compris les addMatch réussis) sera rollbacké.
+        // 4. Rapport
+        ImportReport report = new ImportReport();
+        report.setSuccessCount(matchsToSave.size());
+        report.setFailureCount(errors.size());
+        report.setErrors(serializeErrors(errors));
+        report.setImportDate(LocalDateTime.now());
+
         return importReportRepository.save(report);
     }
+
+    private Match createMatch(MatchCreationDTO dto, Map<Long, Equipe> equipesMap) {
+        Match match = new Match();
+        match.setEquipeA(equipesMap.get(dto.equipeAId()));
+        match.setEquipeB(equipesMap.get(dto.equipeBId()));
+        match.setStatus(Match.Status.NOUVEAU);
+        match.setRounds(dto.rounds());
+        return match;
+    }
+
+    private String serializeErrors(List<ImportError> errors) {
+        if (errors.isEmpty()) return null;
+
+        return errors.stream()
+                .map(e -> String.format("Ligne %d [Équipe A: %d, Équipe B: %d] : %s",
+                        e.lineNumber(),
+                        e.dto().equipeAId(),
+                        e.dto().equipeBId(),
+                        e.error()
+                ))
+                .collect(Collectors.joining("\n"));
+    }
+
+    private record ImportError(int lineNumber, MatchCreationDTO dto, String error) {}
 }

@@ -76,9 +76,11 @@ ALTER TABLE match_round
 CREATE TABLE import_report
 (
     id            BIGINT       NOT NULL AUTO_INCREMENT,
-    date          DATETIME     NULL,
-    success_count INT          NOT NULL,
-    failure_count INT          NOT NULL,
-    top_winner    VARCHAR(255) NULL,
+    import_date   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    success_count INT          NOT NULL DEFAULT 0,
+    failure_count INT          NOT NULL DEFAULT 0,
+    errors        TEXT         NULL,
     CONSTRAINT pk_import_report PRIMARY KEY (id)
 );
+
+CREATE INDEX idx_import_report_date ON import_report(import_date DESC);

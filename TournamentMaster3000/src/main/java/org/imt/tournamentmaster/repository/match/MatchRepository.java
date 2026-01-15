@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface MatchRepository extends CrudRepository<Match, Long> {
     
-    // Vérifie si un match existe déjà entre ces deux équipes avec ce statut spécifique (ou on pourrait chercher statut != TERMINE)
-    boolean existsByEquipeAAndEquipeBAndStatusNot(Equipe equipeA, Equipe equipeB, Match.Status status);
+    // Vérifie si un match existe déjà entre ces deux équipes
+    boolean existsByEquipeAAndEquipeB(Equipe equipeA, Equipe equipeB);
 }
