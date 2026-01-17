@@ -71,3 +71,16 @@ ALTER TABLE match_round
 
 ALTER TABLE match_round
     ADD CONSTRAINT fk_matrou_on_round FOREIGN KEY (round_id) REFERENCES round (id);
+
+-- import_report
+CREATE TABLE import_report
+(
+    id            BIGINT       NOT NULL AUTO_INCREMENT,
+    import_date   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    success_count INT          NOT NULL DEFAULT 0,
+    failure_count INT          NOT NULL DEFAULT 0,
+    errors        TEXT         NULL,
+    CONSTRAINT pk_import_report PRIMARY KEY (id)
+);
+
+CREATE INDEX idx_import_report_date ON import_report(import_date DESC);

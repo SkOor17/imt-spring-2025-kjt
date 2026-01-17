@@ -2,6 +2,7 @@ package org.imt.tournamentmaster.controller.match;
 
 import org.imt.tournamentmaster.dto.MatchCreationDTO;
 import org.imt.tournamentmaster.model.match.Match;
+import org.imt.tournamentmaster.model.reporting.ImportReport;
 import org.imt.tournamentmaster.service.match.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,4 +37,9 @@ public class MatchController {
 
     @PostMapping
     public Match addMatch(@RequestBody MatchCreationDTO matchDto) { return matchService.addMatch(matchDto); }
+
+    @PostMapping("/bulk")
+    public ImportReport bulkAddMatches(@RequestBody List<MatchCreationDTO> dtos) {
+        return matchService.bulkAddMatches(dtos);
+    }
 }
