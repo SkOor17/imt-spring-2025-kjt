@@ -7,6 +7,7 @@ import org.imt.tournamentmaster.service.match.MatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,10 +37,10 @@ public class MatchController {
     }
 
     @PostMapping
-    public Match addMatch(@RequestBody MatchCreationDTO matchDto) { return matchService.addMatch(matchDto); }
+    public Match addMatch(@Valid @RequestBody MatchCreationDTO matchDto) { return matchService.addMatch(matchDto); }
 
     @PostMapping("/bulk")
-    public ImportReport bulkAddMatches(@RequestBody List<MatchCreationDTO> dtos) {
+    public ImportReport bulkAddMatches(@Valid @RequestBody List<MatchCreationDTO> dtos) {
         return matchService.bulkAddMatches(dtos);
     }
 }
