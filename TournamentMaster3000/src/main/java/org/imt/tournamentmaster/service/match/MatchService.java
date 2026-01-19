@@ -1,11 +1,14 @@
 package org.imt.tournamentmaster.service.match;
 
+import org.imt.tournamentmaster.controller.compte.CompteController;
 import org.imt.tournamentmaster.dto.MatchCreationDTO;
 import org.imt.tournamentmaster.model.equipe.Equipe;
 import org.imt.tournamentmaster.model.match.Match;
 import org.imt.tournamentmaster.model.reporting.ImportReport;
 import org.imt.tournamentmaster.repository.equipe.EquipeRepository;
 import org.imt.tournamentmaster.repository.match.MatchRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,7 @@ public class MatchService {
     private final MatchRepository matchRepository;
     private final EquipeRepository equipeRepository;
     private final org.imt.tournamentmaster.repository.reporting.ImportReportRepository importReportRepository;
+    Logger logger = LoggerFactory.getLogger(CompteController.class);
 
     @Autowired
     public MatchService(MatchRepository matchRepository, EquipeRepository equipeRepository, org.imt.tournamentmaster.repository.reporting.ImportReportRepository importReportRepository) {
@@ -60,6 +64,7 @@ public class MatchService {
             match.setEquipeB(equipeB);
         }
 
+        logger.info(String.format("Match %d : %s vs %s", match.getId(), match.getEquipeA().getNom(), match.getEquipeB().getNom()));
         return matchRepository.save(match);
     }
 
@@ -102,6 +107,7 @@ public class MatchService {
                 // Création du match
                 Match match = createMatch(dto, equipesMap);
                 matchsToSave.add(match);
+                logger.info(String.format("Match %d : %s vs %s préparé pour l'ajout en masse", match.getId(), match.getEquipeA().getNom(), match.getEquipeB().getNom()));
 
             } catch (Exception e) {
                 errors.add(new ImportError(i + 1, dto, e.getMessage()));
@@ -110,6 +116,7 @@ public class MatchService {
 
         // 3. Sauvegarde
         if (!matchsToSave.isEmpty()) {
+            logger.info("Sauvegarde des matchs ajouté en masse");
             matchRepository.saveAll(matchsToSave);
         }
 
@@ -119,6 +126,7 @@ public class MatchService {
         report.setFailureCount(errors.size());
         report.setErrors(serializeErrors(errors));
         report.setImportDate(LocalDateTime.now());
+        logger.info(String.format("Résultat  de l'ajout en masse : succès=%d échec=%d", matchsToSave.size(), errors.size()));
 
         return importReportRepository.save(report);
     }
